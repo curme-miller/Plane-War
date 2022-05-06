@@ -4,7 +4,10 @@
 #include <graphics.h> //图形库
 #include <conio.h>
 #include <easyx.h>
+#include <mmsystem.h>
+
 using namespace std;
+
 #define Width 600
 #define Height 750
 #define BULLET_NUM 15 //最大子弹数量
@@ -19,9 +22,10 @@ struct Image
 	IMAGE bullet2;
 	IMAGE enemy;
 	IMAGE startmenu;
-	IMAGE start;
-	// IMAGE explain;
-	// IMAGE expla;//说明书图片出不来
+	IMAGE start1;
+	IMAGE start2;
+	IMAGE explain;
+	IMAGE expla; //说明书图片出不来
 	IMAGE end;
 } image; //调用图片库
 
@@ -62,12 +66,12 @@ int judgeBTNumber(ExMessage msg)
 		return 1;
 	else if (msg.x > 150 && msg.x < 520 && msg.y > 500 && msg.y < 680)
 		return 2;
-	/*else if (msg.x > 150 && msg.x < 520 && msg.y>300 && msg.y < 480)
-	{
+	else if (msg.x > 150 && msg.x < 520 && msg.y > 300 && msg.y < 480)
 		return 4;
-	}
+	/*
 	else if (msg.x > 0 && msg.x < 150 && msg.y>0 && msg.y < 50)
-		return 3;*/
+		return 3;
+	*/
 	return 0;
 }
 
@@ -82,11 +86,15 @@ void GameInit()
 	loadimage(&image.bullet2, _T("../images/12.png"), 20, 10);
 	loadimage(&image.enemy, _T("../images/2.png"), 50, 50);
 	loadimage(&image.startmenu, _T("../images/5start.png"));
-	loadimage(&image.start, _T("../images/6s.png"));
-	// loadimage(&image.explain, _T("../images/8s.png"));
+	loadimage(&image.start1, _T("../images/6s1.png"));
+	loadimage(&image.start2, _T("../images/6s2.png"));
 	loadimage(&image.end, _T("../images/7s.png"));
-	// loadimage(&image.expla, _T("../images/9.png"));
-	//项目/属性/多字节/Unicode->多字符(如果保错的话)上面四个都是图片的地址，可以换。
+
+	loadimage(&image.expla, _T("../images/9.png"));
+	loadimage(&image.explain, _T("../images/8s.png"));
+
+	//项目/属性/多字节/Unicode->多字符(如果保错的话)上面四个都是图片的地址，可以换
+
 	//初始化玩家数据
 	player.x = Width / 2;
 	player.y = Height / 2 + 300;
@@ -175,9 +183,7 @@ void EnemyMove(float speed)
 		{
 			enemy[i].y += speed;
 			if (enemy[i].y >= Height)
-			{
 				enemy[i].flag = false;
-			}
 		}
 	}
 }
@@ -256,8 +262,9 @@ void PlayEnemy(int &flag) //判断子弹是否击中敌机
 void startmenu(int &flag)
 {
 	putimage(0, 0, &image.startmenu); //绘制背景图片
-	putimage(150, 100, &image.start);
-	// putimage(150, 300, &image.explain);
+	putimage(150, 100, &image.start2, SRCAND);
+	putimage(150, 100, &image.start1, SRCPAINT);
+	putimage(150, 300, &image.explain);
 	putimage(150, 500, &image.end);
 	ExMessage m;
 	m = getmessage(EM_MOUSE | EM_KEY);
@@ -265,24 +272,29 @@ void startmenu(int &flag)
 	FlushBatchDraw();
 	number = judgeBTNumber(m);
 	if (number == 1 && m.message == WM_LBUTTONDOWN)
-	{
 		flag = 1;
-	}
 	else if (number == 2 && m.message == WM_LBUTTONDOWN)
 		flag = 2;
-	// else if (number == 4 && m.message == WM_LBUTTONDOWN)
-	// flag = 4;
+	else if (number == 4 && m.message == WM_LBUTTONDOWN)
+		flag = 4;
 }
-/*void explain(int& flag, int& end)
+
+void explain(int &flag, int &end)
 {
 	putimage(0, 0, &image.expla);
-}*/
+	FlushBatchDraw();
+	Sleep(3000);
+	flag = 0;
+	end = 1;
+}
+
 void endGame(int &flag, int &end)
 {
 	end = 1;
 	putimage(0, 0, &image.startmenu);
-	putimage(150, 100, &image.start);
-	// putimage(150, 300, &image.explain);
+	putimage(150, 100, &image.start2, SRCAND);
+	putimage(150, 100, &image.start1, SRCPAINT);
+	putimage(150, 300, &image.explain);
 	putimage(150, 500, &image.end);
 	ExMessage m;
 	m = getmessage(EM_MOUSE | EM_KEY);
@@ -330,11 +342,10 @@ int main()
 			endGame(flag, end);
 			FlushBatchDraw();
 		}
-
-		/*if (flag == 4)
+		else if (flag == 4)
 		{
 			explain(flag, end);
-		}*/
+		}
 	}
 	return 0;
 }

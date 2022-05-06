@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "README": "markdown",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "typeinfo": "cpp"
+    }
+}

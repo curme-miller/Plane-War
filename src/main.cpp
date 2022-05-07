@@ -1,18 +1,17 @@
 #include <iostream>
 #include <ctime>
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
 #include <graphics.h> //图形库
 #include <conio.h>
 #include <easyx.h>
 #include <mmsystem.h>
-
+#pragma comment(lib, "winmm.lib")
 using namespace std;
-
 #define Width 600
 #define Height 750
 #define BULLET_NUM 15 //最大子弹数量
 #define ENEMY_NUM 10  //敌军数量
-
 struct Image
 {
 	IMAGE bk;
@@ -25,15 +24,13 @@ struct Image
 	IMAGE start1;
 	IMAGE start2;
 	IMAGE explain;
-	IMAGE expla; //说明书图片出不来
+	IMAGE expla;
 	IMAGE end;
 } image; //调用图片库
-
 enum Type
 {
 	SMALL,
 };
-
 struct plane
 {
 	float x;
@@ -43,9 +40,7 @@ struct plane
 	int type;
 	int hp;										//血量
 } player, bullet[BULLET_NUM], enemy[ENEMY_NUM]; //飞机的（X,Y）坐标和是否存活的结构体
-
 DWORD t1, t2, t3, t4;
-
 void Enemyhp(int i) //生成敌机的血量hp的大小是几个子弹打完后可以消失
 {
 	if (rand() % 10 == 0)
@@ -59,7 +54,6 @@ void Enemyhp(int i) //生成敌机的血量hp的大小是几个子弹打完后可以消失
 		enemy[i].hp = 1;
 	}
 }
-
 int judgeBTNumber(ExMessage msg)
 {
 	if (msg.x > 150 && msg.x < 520 && msg.y > 100 && msg.y < 280)
@@ -68,10 +62,6 @@ int judgeBTNumber(ExMessage msg)
 		return 2;
 	else if (msg.x > 150 && msg.x < 520 && msg.y > 300 && msg.y < 480)
 		return 4;
-	/*
-	else if (msg.x > 0 && msg.x < 150 && msg.y>0 && msg.y < 50)
-		return 3;
-	*/
 	return 0;
 }
 
@@ -89,10 +79,8 @@ void GameInit()
 	loadimage(&image.start1, _T("../images/6s1.png"));
 	loadimage(&image.start2, _T("../images/6s2.png"));
 	loadimage(&image.end, _T("../images/7s.png"));
-
 	loadimage(&image.expla, _T("../images/9.png"));
 	loadimage(&image.explain, _T("../images/8s.png"));
-
 	//项目/属性/多字节/Unicode->多字符(如果保错的话)上面四个都是图片的地址，可以换
 
 	//初始化玩家数据
@@ -155,9 +143,7 @@ void BulletMove(int speed)
 		{
 			bullet[i].y -= speed;
 			if (bullet[i].y <= 0)
-			{
 				bullet[i].flag = false;
-			}
 		}
 	}
 } //子弹移动
@@ -191,21 +177,14 @@ void GameControl(float speed)
 {
 	//前四个if分别为前后左右
 	if (GetAsyncKeyState(VK_UP) && player.y >= 0)
-	{
 		player.y -= speed;
-	}
 	if (GetAsyncKeyState(VK_DOWN) && player.y + 100 <= Height)
-	{
 		player.y += speed;
-	}
 	if (GetAsyncKeyState(VK_LEFT) && player.x + 50 >= 0)
-	{
 		player.x -= speed;
-	}
 	if (GetAsyncKeyState(VK_RIGHT) && player.x + 50 <= Width)
-	{
 		player.x += speed;
-	}
+
 	//发射子弹
 	if (GetAsyncKeyState(VK_SPACE) && (t2 - t1 > 200))
 	{
@@ -287,7 +266,6 @@ void explain(int &flag, int &end)
 	flag = 0;
 	end = 1;
 }
-
 void endGame(int &flag, int &end)
 {
 	end = 1;
@@ -306,11 +284,15 @@ void endGame(int &flag, int &end)
 	else
 		flag = 0;
 }
-
 int main()
 {
 	int flag = 0;
 	int end = 1;
+	bool isPlay = true;
+	mciSendString(TEXT("open ../musics/timi.mp3 alias timi"), NULL, 0, NULL);
+	mciSendString(TEXT("play timi"), NULL, 0, NULL);
+	Sleep(1.00 * 1000);
+	mciSendString(TEXT("close timi"), NULL, 0, NULL);
 	initgraph(Width, Height);
 	BeginBatchDraw();
 	while (1)
@@ -319,11 +301,18 @@ int main()
 		{
 			GameInit();
 			end = 0;
+			isPlay = true;
 		}
 		if (flag == 0)
 			startmenu(flag);
 		if (flag == 1)
 		{
+			if (isPlay)
+			{
+				mciSendString(TEXT("open ../musics/Star_Sky.mp3 alias bkSong"), NULL, 0, NULL);
+				mciSendString(TEXT("play bkSong repeat"), NULL, 0, NULL);
+				isPlay = false;
+			}
 			Gamedraw();
 			FlushBatchDraw();
 			GameControl(1); //可以修改飞机灵敏度，就是跑的快慢
@@ -341,6 +330,7 @@ int main()
 		{
 			endGame(flag, end);
 			FlushBatchDraw();
+			mciSendString(TEXT("close bkSong"), NULL, 0, NULL);
 		}
 		else if (flag == 4)
 		{

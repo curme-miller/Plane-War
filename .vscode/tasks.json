@@ -9,11 +9,10 @@
 				"-fdiagnostics-color=always",
 				"-g",
 				"${file}",
-				"-L",
-				"E:\\TDM-gcc\\x86_64-w64-mingw32\\lib",
 				"-lEasyX",
 				"-lgdi32",
 				"-lole32",
+				"-lwinmm",
 				"-o",
 				"${fileDirname}\\${fileBasenameNoExtension}.exe"
 			],
@@ -31,3 +30,8 @@
 		}
 	]
 }
+
+
+
+//				"-L",
+//"E:\\TDM-gcc\\x86_64-w64-mingw32\\lib",
